@@ -91,16 +91,93 @@ describe("Hypodermic", function() {
 		});
 	});
 	describe("_getClassReference", function() {
+		beforeEach(function() {
+			this.factory = new Hypodermic();
+		});
 		describe("when returning a class reference", function() {
-			xit("requires the class name start with a capital letter");
-			xit("requires that no special characters be present in the class name");
-			xit("accepts '_' and '$' in the class name");
+			it("requires the class name start with a capital letter", function() {
+				var Klass = this.factory._getClassReference("XMLHttpRequest");
+				expect(Klass).toStrictlyEqual(XMLHttpRequest);
+			});
+			it("requires that no special characters be present in the class name", function() {
+				window.$TestInvalidGetClassReference = function() {};
+				window._TestInvalidGetClassReference = function() {};
+				var Klass;
+
+				Klass = this.factory._getClassReference("$TestInvalidGetClassReference");
+				expect(Klass).toBeNull();
+
+				Klass = this.factory._getClassReference("_TestInvalidGetClassReference");
+				expect(Klass).toBeNull();
+
+				delete window.$TestInvalidGetClassReference;
+				delete window._TestInvalidGetClassReference;
+			});
+			it("accepts underscores and $ in the class name", function() {
+				window.TestSpecialChars_GetClassReference = function() {};
+				window.TestSpecialChars$GetClassReference = function() {};
+
+				var Klass = this.factory._getClassReference("TestSpecialChars_GetClassReference");
+				expect(Klass).toStrictlyEqual(TestSpecialChars_GetClassReference);
+
+				var Klass = this.factory._getClassReference("TestSpecialChars$GetClassReference");
+				expect(Klass).toStrictlyEqual(TestSpecialChars$GetClassReference);
+
+				delete window.TestSpecialChars_GetClassReference;
+				delete window.TestSpecialChars$GetClassReference;
+			});
+			it("requires namespaced class names start with a capital letter", function() {
+				window.TestGetClassReference = {
+					A: {
+						Test: {
+							Foo: function() {}
+						}
+					}
+				};
+
+				var Klass = this.factory._getClassReference("TestGetClassReference.A.Test.Foo");
+				expect(Klass).toStrictlyEqual(TestGetClassReference.A.Test.Foo);
+
+				delete window.TestGetClassReference;
+			});
 		});
 		describe("invalid class names return null because", function() {
-			xit("did not start with a capital letter");
-			xit("contained executable scripts");
-			xit("did not exist in the global object");
-			xit("an error was thrown when attempting to get the class reference");
+			it("class names should not start with a lower case letter", function() {
+				window.testGetClassReference = function() {};
+				var Klass = this.factory._getClassReference("testGetClassReference");
+
+				expect(Klass).toBeNull();
+				delete window.testGetClassReference;
+			});
+			it("class names cannot be executable JavaScript", function() {
+				spyOn(window, "alert");
+				var Klass = this.factory._getClassReference("alert('Hacked!');");
+
+				expect(window.alert).wasNotCalled();
+				expect(Klass).toBeNull();
+
+				Klass = this.factory._getClassReference("\a\Aalert\(\'Hacked\!\'\);");
+				expect(window.alert).wasNotCalled();
+				expect(Klass).toBeNull();
+
+				Klass = this.factory._getClassReference("\\aA\\alert\\(\\'Hacked\\!\\'\\)\\;");
+				expect(window.alert).wasNotCalled();
+				expect(Klass).toBeNull();
+			});
+			it("did not exist in the global object", function() {
+				if (window.TestGetClassReference) {
+					delete window.TestGetClassReference;
+				}
+
+				var Klass = this.factory._getClassReference("TestGetClassReference");
+
+				expect(Klass).toBeNull();
+			});
+			it("it throws an error when attempting to get the class reference", function() {
+				var Klass = this.factory._getClassReference("I.Do.Not.Exist");
+
+				expect(Klass).toBeNull();
+			});
 		});
 	});
 	describe("_getDependencyValue", function() {
