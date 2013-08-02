@@ -1,29 +1,93 @@
 describe("Hypodermic", function() {
 	describe("utils", function() {
+		beforeEach(function() {
+			this.factory = new Hypodermic();
+		});
 		describe("_capitalize", function() {
-			it("makes the first letter upper case");
+			it("makes the first letter upper case", function() {
+				expect(this.factory._capitalize("foo")).toEqual("Foo");
+				expect(this.factory._capitalize("fooBar")).toEqual("FooBar");
+			});
 		});
 		describe("_isArray", function() {
-			xit("returns true for Arrays");
-			xit("returns false for Objects");
-			xit("returns false for null");
-			xit("returns false for booleans");
-			xit("returns false for strings");
+			it("returns true for Arrays", function() {
+				expect(this.factory._isArray([])).toBeTrue();
+			});
+			it("returns false for Objects", function() {
+				expect(this.factory._isArray({})).toBeFalse();
+			});
+			it("returns false for null", function() {
+				expect(this.factory._isArray(null)).toBeFalse();
+			});
+			it("returns false for booleans", function() {
+				expect(this.factory._isArray(true)).toBeFalse();
+				expect(this.factory._isArray(false)).toBeFalse();
+			});
+			it("returns false for strings", function() {
+				expect(this.factory._isArray("test")).toBeFalse();
+			});
 		});
 		describe("_isFunction", function() {
-			xit("returns true for Functions");
-			xit("returns true for native DOM methods");
-			xit("returns true for global functions");
-			xit("returns false for null");
-			xit("returns false for booleans");
-			xit("returns false for strings");
+			it("returns true for Functions", function() {
+				var a = function() {};
+				a.prototype.foo = function() {};
+
+				function b() {}
+
+				expect(this.factory._isFunction(a)).toBeTrue();
+				expect(this.factory._isFunction(b)).toBeTrue();
+
+			});
+			it("returns true for native DOM methods", function() {
+				expect(this.factory._isFunction(document.getElementById)).toBeTrue();
+				expect(this.factory._isFunction(document.body.appendChild)).toBeTrue();
+			});
+			it("returns true for global functions", function() {
+				expect(this.factory._isFunction(window.alert)).toBeTrue();
+			});
+			it("returns false for null", function() {
+				expect(this.factory._isFunction(null)).toBeFalse();
+			});
+			it("returns false for booleans", function() {
+				expect(this.factory._isFunction(true)).toBeFalse();
+				expect(this.factory._isFunction(false)).toBeFalse();
+			});
+			it("returns false for strings", function() {
+				expect(this.factory._isFunction("testing")).toBeFalse();
+			});
 		});
 		describe("_isObject", function() {
-			xit("returns true for Objects");
-			xit("returns true for Arrays");
-			xit("returns false for null");
-			xit("returns false for booleans");
-			xit("returns false for strings");
+			describe("returns true for", function() {
+				it("Objects", function() {
+					expect(this.factory._isObject({})).toBeTrue();
+				});
+				it("Arrays", function() {
+					expect(this.factory._isObject([])).toBeTrue();
+				});
+				it("Functions", function() {
+					expect(this.factory._isObject(function() {})).toBeTrue();
+				});
+				it("String objects", function() {
+					expect(this.factory._isObject(new String())).toBeTrue();
+				});
+				it("Number objects", function() {
+					expect(this.factory._isObject(new Number(32))).toBeTrue();
+				});
+			});
+			describe("returns false for", function() {
+				it("null", function() {
+					expect(this.factory._isObject(null)).toBeFalse();
+				});
+				it("booleans", function() {
+					expect(this.factory._isObject(null)).toBeFalse();
+				});
+				it("string literals", function() {
+					expect(this.factory._isObject("testing")).toBeFalse();
+				});
+				it("number literals", function() {
+					expect(this.factory._isObject(32)).toBeFalse();
+				});
+			});
 		});
 	});
 	describe("_getClassReference", function() {
