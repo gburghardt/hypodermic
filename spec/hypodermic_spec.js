@@ -181,9 +181,41 @@ describe("Hypodermic", function() {
 		});
 	});
 	describe("_getDependencyValue", function() {
-		xit("returns an object instance from the factory if the property config has an 'id'");
-		xit("returns a value from the property config if the value is not 'undefined'");
-		xit("returns null if there is no 'id' and no 'value' in the property config");
+		beforeEach(function() {
+			this.factory = new Hypodermic();
+		});
+		it("returns an object instance from the factory if the property config has an 'id'", function() {
+			var propertyConfig = {
+				id: "test"
+			};
+
+			var test = {};
+
+			spyOn(this.factory, "getInstance").andReturn(test);
+
+			var dependency = this.factory._getDependencyValue(propertyConfig);
+
+			expect(this.factory.getInstance).wasCalledWith("test");
+			expect(dependency).toStrictlyEqual(test);
+		});
+		it("returns a value from the property config if the value is not 'undefined'", function() {
+			var propertyConfig = {
+				value: 123
+			};
+
+			spyOn(this.factory, "getInstance");
+
+			var dependency = this.factory._getDependencyValue(propertyConfig);
+
+			expect(dependency).toEqual(123);
+		});
+		it("throws an error if there is no 'id' and no 'value' in the property config", function() {
+			var factory = this.factory;
+
+			expect(function() {
+				factory._getDependencyValue({});
+			}).toThrow("Property config must have an id or value");
+		});
 	});
 	describe("_getConstructorArgs", function() {
 		xit("returns an empty array if there are no constructor argument configs");
