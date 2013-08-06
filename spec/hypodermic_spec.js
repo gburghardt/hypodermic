@@ -181,9 +181,72 @@ describe("Hypodermic", function() {
 		});
 	});
 	describe("_getDependencyValue", function() {
-		xit("returns an object instance from the factory if the property config has an 'id'");
-		xit("returns a value from the property config if the value is not 'undefined'");
-		xit("returns null if there is no 'id' and no 'value' in the property config");
+		beforeEach(function() {
+			this.factory = new Hypodermic();
+		});
+		it("returns an object instance from the factory if the property config has an 'id'", function() {
+			var dependency = {};
+			spyOn(this.factory, "getInstance").andReturn(dependency);
+
+			var propertyConfig = {
+				id: "foo"
+			};
+
+			var value = this.factory._getDependencyValue(propertyConfig);
+
+			expect(this.factory.getInstance).wasCalledWith(propertyConfig.id);
+			expect(value).toStrictlyEqual(dependency);
+		});
+		it("returns a value from the property config if the value is not 'undefined'", function() {
+			spyOn(this.factory, "getInstance");
+
+			var propertyConfig;
+			var value;
+
+			propertyConfig = {
+				value: null
+			};
+			value = this.factory._getDependencyValue(propertyConfig);
+			expect(value).toBeNull();
+
+			propertyConfig = {
+				value: "testing"
+			};
+			value = this.factory._getDependencyValue(propertyConfig);
+			expect(value).toEqual(propertyConfig.value);
+
+			propertyConfig = {
+				value: false
+			};
+			value = this.factory._getDependencyValue(propertyConfig);
+			expect(value).toBeFalse();
+
+			propertyConfig = {
+				value: {foo: "bar"}
+			};
+			value = this.factory._getDependencyValue(propertyConfig);
+			expect(value).toStrictlyEqual(propertyConfig.value);
+			expect(value.foo).toEqual(propertyConfig.value.foo);
+		});
+		it("throws an error if there is no 'id' and no 'value' in the property config", function() {
+			var factory = this.factory;
+
+			expect(function() {
+				factory._getDependencyValue({});
+			}).toThrow("Cannot extract dependency value. Property config missing one of \"id\" or \"value\"");
+
+			expect(function() {
+				factory._getDependencyValue({ value: undefined });
+			}).toThrow("Cannot extract dependency value. Property config missing one of \"id\" or \"value\"");
+
+			expect(function() {
+				factory._getDependencyValue({ id: undefined });
+			}).toThrow("Cannot extract dependency value. Property config missing one of \"id\" or \"value\"");
+
+			expect(function() {
+				factory._getDependencyValue({id: undefined, value: undefined });
+			}).toThrow("Cannot extract dependency value. Property config missing one of \"id\" or \"value\"");
+		});
 	});
 	describe("_getConstructorArgs", function() {
 		xit("returns an empty array if there are no constructor argument configs");
