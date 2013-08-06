@@ -249,8 +249,40 @@ describe("Hypodermic", function() {
 		});
 	});
 	describe("_getConstructorArgs", function() {
-		xit("returns an empty array if there are no constructor argument configs");
-		xit("returns an array of arguments passed to an object's constructor");
+		beforeEach(function() {
+			this.factory = new Hypodermic();
+		});
+		it("returns an empty array if there are no constructor argument configs", function() {
+			var config = [];
+			var args = this.factory._getConstructorArgs(config);
+
+			expect(args.length).toEqual(0);
+		});
+		it("returns an array of arguments passed to an object's constructor", function() {
+			var config = [{
+				value: 123
+			},{
+				id: "test"
+			}];
+			var test = {};
+
+			spyOn(this.factory, "getInstance").andReturn(test);
+
+			var args = this.factory._getConstructorArgs(config);
+
+			expect(this.factory.getInstance).wasCalledWith(config[1].id);
+			expect(args.length).toEqual(2);
+			expect(args[0]).toEqual(123);
+			expect(args[1]).toStrictlyEqual(test);
+		});
+		it("throws an error if one of the arguments does not have an \"id\" or \"value\"", function() {
+			var config = [{ value: 123 }, {}];
+			var factory = this.factory;
+
+			expect(function() {
+				factory._getConstructorArgs(config);
+			}).toThrowError();
+		});
 	});
 	describe("_injectDependencies", function() {
 		xit("injects 'foo' via setFoo(foo)");
