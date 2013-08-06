@@ -37,9 +37,9 @@ Use plain old JSON to define how all of your classes are wired together:
 
       newsTicker: {
         className: "News.NewsTickerController",
+        constructorArgs: [{ id: "config" }],
         properties: {
           title: "Latest Headlines",
-          config: { id: "config" },
           transport: { id: "transport" },
           url: "/latest_news"
         }
@@ -89,6 +89,7 @@ Break your application down into individual components.
       element: null,
       method: "GET",
       retries: 0,
+      title: "",
       transport: null,
       url: null,
 
