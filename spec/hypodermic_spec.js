@@ -350,11 +350,233 @@ describe("Hypodermic", function() {
 		});
 	});
 	describe("_createInstanceFromConfig", function() {
-		xit("returns null if the class in the config is not found");
-		xit("creates a new instance without constructor arguments");
-		xit("creates a new instance with constructor arguments");
-		xit("injects property dependencies");
-		xit("injects property dependencies from parent configs");
+		beforeEach(function() {
+			this.factory = new Hypodermic();
+		});
+		it("creates a new instance without constructor arguments", function() {
+			window.TestCreateInstanceFromConfig = function(x) {
+				this.x = x;
+			};
+
+			var config = {
+				className: "TestCreateInstanceFromConfig"
+			};
+
+			spyOn(window, "TestCreateInstanceFromConfig").andCallThrough();
+
+			var instance = this.factory._createInstanceFromConfig(config);
+
+			expect(window.TestCreateInstanceFromConfig).wasCalled();
+			expect(instance.x).toBeUndefined();
+
+			window.TestCreateInstanceFromConfig = null;
+			delete window.TestCreateInstanceFromConfig;
+		});
+		it("creates a new instance with constructor arguments", function() {
+			window.TestCreateInstanceFromConfig = {
+				With: {
+					ConstructorArgs: function(x, y, options) {
+						this.x = x;
+						this.y = y;
+						this.options = options;
+					}
+				}
+			};
+
+			var config = {
+				className: "TestCreateInstanceFromConfig.With.ConstructorArgs",
+				constructorArgs: [
+					{
+						value: 10
+					},{
+						value: 5
+					},{
+						id: "defaultOptions"
+					}
+				]
+			};
+
+			var defaultOptions = {};
+
+			spyOn(window.TestCreateInstanceFromConfig.With, "ConstructorArgs").andCallThrough();
+			spyOn(this.factory, "getInstance").andReturn(defaultOptions);
+
+			var instance = this.factory._createInstanceFromConfig(config);
+
+			expect(this.factory.getInstance).wasCalledWith("defaultOptions");
+			expect(TestCreateInstanceFromConfig.With.ConstructorArgs).wasCalledWith(10, 5, defaultOptions);
+			expect(instance).toBeInstanceof(TestCreateInstanceFromConfig.With.ConstructorArgs);
+			expect(instance.x).toEqual(config.constructorArgs[0].value);
+			expect(instance.y).toEqual(config.constructorArgs[1].value);
+			expect(instance.options).toStrictlyEqual(defaultOptions);
+
+			window.TestCreateInstanceFromConfig = null;
+			delete window.TestCreateInstanceFromConfig;
+		});
+		it("injects property dependencies", function() {
+			window.TestCreateInstanceFromConfig = {
+				With: {
+					Properties: function() {}
+				}
+			};
+
+			TestCreateInstanceFromConfig.With.Properties.prototype = {
+				name: null,
+				price: null,
+				description: null,
+
+				setName: function(name) {
+					this.name = name;
+				},
+
+				setPrice: function(price) {
+					this.price = price;
+				}
+			};
+
+			spyOn(TestCreateInstanceFromConfig.With.Properties.prototype, "setName").andCallThrough();
+			spyOn(TestCreateInstanceFromConfig.With.Properties.prototype, "setPrice").andCallThrough();
+			spyOn(this.factory, "getInstance");
+
+			var config = {
+				className: "TestCreateInstanceFromConfig.With.Properties",
+				properties: {
+					name: { value: "Hammer" },
+					price: { value: 12.99 },
+					description: { value: "Pounds nails" }
+				}
+			};
+
+			var instance = this.factory._createInstanceFromConfig(config);
+
+			expect(this.factory.getInstance).wasNotCalled();
+			expect(TestCreateInstanceFromConfig.With.Properties.prototype.setName).wasCalledWith(config.properties.name.value);
+			expect(TestCreateInstanceFromConfig.With.Properties.prototype.setPrice).wasCalledWith(config.properties.price.value);
+			expect(instance.description).toEqual(config.properties.description.value);
+
+			window.TestCreateInstanceFromConfig = null;
+			delete window.TestCreateInstanceFromConfig;
+		});
+		it("injects property dependencies from parent configs", function() {
+			window.TestCreateInstanceFromConfig = {
+				With: {
+					ParentConfigs: function() {}
+				}
+			};
+
+			TestCreateInstanceFromConfig.With.ParentConfigs.prototype = {
+				taxRate: null,
+				price: null,
+
+				setPrice: function(price) {
+					this.price = price;
+				},
+
+				setTaxRate: function(taxRate) {
+					this.taxRate = taxRate;
+				}
+			};
+
+			var proto = TestCreateInstanceFromConfig.With.ParentConfigs.prototype;
+
+			spyOn(proto, "setPrice").andCallThrough();
+			spyOn(proto, "setTaxRate").andCallThrough();
+			spyOn(this.factory, "getInstance");
+
+			var parentConfig = {
+				abstract: true,
+				properties: {
+					taxRate: {
+						value: 0.06
+					}
+				}
+			};
+
+			this.factory.setConfigs({
+				taxable: parentConfig
+			});
+
+			var config = {
+				className: "TestCreateInstanceFromConfig.With.ParentConfigs",
+				parent: "taxable",
+				properties: {
+					price: { value: 12.99 }
+				}
+			};
+
+			var instance = this.factory._createInstanceFromConfig(config);
+
+			expect(this.factory.getInstance).wasNotCalled();
+			expect(proto.setPrice).wasCalledWith(config.properties.price.value);
+			expect(proto.setTaxRate).wasCalledWith(parentConfig.properties.taxRate.value);
+
+			window.TestCreateInstanceFromConfig.With.ParentConfigs = null;
+			delete window.TestCreateInstanceFromConfig.With.ParentConfigs;
+		});
+		it("overrides properties set by parent configs", function() {
+			window.TestCreateInstanceFromConfig = {
+				Override: {
+					ParentConfigs: function() {}
+				}
+			};
+
+			TestCreateInstanceFromConfig.Override.ParentConfigs.prototype = {
+				setTaxRate: function(taxRate) {
+					this.taxRate = taxRate;
+				}
+			};
+
+			var proto = TestCreateInstanceFromConfig.Override.ParentConfigs.prototype;
+
+			spyOn(proto, "setTaxRate").andCallThrough();
+			spyOn(this.factory, "getInstance");
+
+			var parentConfig = {
+				abstract: true,
+				properties: {
+					taxRate: {
+						value: 0.06
+					}
+				}
+			};
+
+			this.factory.setConfigs({
+				taxable: parentConfig
+			});
+
+			var config = {
+				className: "TestCreateInstanceFromConfig.Override.ParentConfigs",
+				parent: "taxable",
+				properties: {
+					taxRate: { value: 0.1 }
+				}
+			};
+
+			var instance = this.factory._createInstanceFromConfig(config);
+
+			expect(this.factory.getInstance).wasNotCalled();
+			expect(proto.setTaxRate).wasCalledWith(0.06);
+			expect(proto.setTaxRate).wasCalledWith(0.1);
+			expect(instance.taxRate).toEqual(0.1);
+		});
+		it("throws an error if the config is missing a className", function() {
+			var factory = this.factory;
+
+			expect(function() {
+				factory._createInstanceFromConfig({});
+			}).toThrow("Missing required className for instance configuration");
+		});
+		it("throws an error if the class in the config is not found", function() {
+			var config = {
+				className: "I.Do.Not.Exist"
+			};
+
+			var factory = this.factory;
+
+			expect(function() {
+				factory._createInstanceFromConfig(config);
+			}).toThrow("Failed to create instance. Class \"I.Do.Not.Exist\" was not found");
+		});
 	});
 	describe("_getSingletonInstance", function() {
 		xit("creates a new singleton instance, caches it, and returns the new object");
