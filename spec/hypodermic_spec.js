@@ -579,8 +579,51 @@ describe("Hypodermic", function() {
 		});
 	});
 	describe("_getSingletonInstance", function() {
-		xit("creates a new singleton instance, caches it, and returns the new object");
-		xit("only allows one instance of that class");
+		beforeEach(function() {
+			this.factory = new Hypodermic();
+		});
+		it("creates a new singleton instance, caches it, and returns the new object", function() {
+			var test = {};
+			var id = "test";
+			var config = {
+				className: "Object",
+				properties: {
+					discount: { value: 0.1 }
+				}
+			};
+
+			spyOn(this.factory, "_createInstanceFromConfig").andReturn(test);
+
+			expect(this.factory._singletons[id]).toBeUndefined();
+
+			var instance = this.factory._getSingletonInstance(id, config);
+
+			expect(this.factory._createInstanceFromConfig).wasCalledWith(config);
+			expect(this.factory._singletons[id]).toStrictlyEqual(test);
+		});
+		it("only allows one instance of that class", function() {
+			var test = {};
+			var id = "test";
+			var config = {
+				className: "Object",
+				properties: {
+					discount: { value: 0.1 }
+				}
+			};
+
+			spyOn(this.factory, "_createInstanceFromConfig").andReturn(test);
+
+			expect(this.factory._singletons[id]).toBeUndefined();
+
+			var instance = this.factory._getSingletonInstance(id, config);
+
+			expect(this.factory._createInstanceFromConfig).wasCalledWith(config);
+			expect(this.factory._singletons[id]).toStrictlyEqual(test);
+			expect(instance).toStrictlyEqual(test);
+
+			instance = this.factory._getSingletonInstance(id, config);
+			expect(instance).toStrictlyEqual(this.factory._singletons[id]);
+		});
 	});
 	describe("getInstance", function() {
 		xit("returns null if no configuration for that Id exists");
