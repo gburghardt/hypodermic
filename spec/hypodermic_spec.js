@@ -285,9 +285,69 @@ describe("Hypodermic", function() {
 		});
 	});
 	describe("_injectDependencies", function() {
-		xit("injects 'foo' via setFoo(foo)");
-		xit("injects 'foo' via addFoo(foo)");
-		xit("injects 'foo' by directly setting the property");
+		beforeEach(function() {
+			this.factory = new Hypodermic();
+		});
+		it("injects 'foo' via setFoo(foo)", function() {
+			var instance = {
+				foo: null,
+
+				setFoo: function(foo) {
+					this.foo = foo;
+				}
+			};
+
+			var properties = {
+				foo: {
+					value: 123
+				}
+			};
+
+			spyOn(instance, "setFoo").andCallThrough();
+
+			this.factory._injectDependencies(instance, properties);
+
+			expect(instance.foo).toEqual(properties.foo.value);
+			expect(instance.setFoo).wasCalledWith(properties.foo.value);
+		});
+		it("injects 'foo' via addFoo(foo)", function() {
+			var instance = {
+				foos: [],
+
+				addFoo: function(foo) {
+					this.foos.push(foo);
+				}
+			};
+
+			var properties = {
+				foo: {
+					value: 123
+				}
+			};
+
+			spyOn(instance, "addFoo").andCallThrough();
+
+			this.factory._injectDependencies(instance, properties);
+
+			expect(instance.foos.length).toEqual(1);
+			expect(instance.foos[0]).toEqual(properties.foo.value);
+			expect(instance.addFoo).wasCalledWith(properties.foo.value);
+		});
+		it("injects 'foo' by directly setting the property", function() {
+			var instance = {
+				foo: null
+			};
+
+			var properties = {
+				foo: {
+					value: 123
+				}
+			};
+
+			this.factory._injectDependencies(instance, properties);
+
+			expect(instance.foo).toEqual(properties.foo.value);
+		});
 	});
 	describe("_createInstanceFromConfig", function() {
 		xit("returns null if the class in the config is not found");
