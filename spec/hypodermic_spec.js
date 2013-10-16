@@ -11,20 +11,20 @@ describe("Hypodermic", function() {
 		});
 		describe("_isArray", function() {
 			it("returns true for Arrays", function() {
-				expect(this.factory._isArray([])).toBeTrue();
+				expect(this.factory._isArray([])).toBe(true);
 			});
 			it("returns false for Objects", function() {
-				expect(this.factory._isArray({})).toBeFalse();
+				expect(this.factory._isArray({})).toBe(false);
 			});
 			it("returns false for null", function() {
-				expect(this.factory._isArray(null)).toBeFalse();
+				expect(this.factory._isArray(null)).toBe(false);
 			});
 			it("returns false for booleans", function() {
-				expect(this.factory._isArray(true)).toBeFalse();
-				expect(this.factory._isArray(false)).toBeFalse();
+				expect(this.factory._isArray(true)).toBe(false);
+				expect(this.factory._isArray(false)).toBe(false);
 			});
 			it("returns false for strings", function() {
-				expect(this.factory._isArray("test")).toBeFalse();
+				expect(this.factory._isArray("test")).toBe(false);
 			});
 		});
 		describe("_isFunction", function() {
@@ -34,58 +34,58 @@ describe("Hypodermic", function() {
 
 				function b() {}
 
-				expect(this.factory._isFunction(a)).toBeTrue();
-				expect(this.factory._isFunction(b)).toBeTrue();
+				expect(this.factory._isFunction(a)).toBe(true);
+				expect(this.factory._isFunction(b)).toBe(true);
 
 			});
 			it("returns true for native DOM methods", function() {
-				expect(this.factory._isFunction(document.getElementById)).toBeTrue();
-				expect(this.factory._isFunction(document.body.appendChild)).toBeTrue();
+				expect(this.factory._isFunction(document.getElementById)).toBe(true);
+				expect(this.factory._isFunction(document.body.appendChild)).toBe(true);
 			});
 			it("returns true for global functions", function() {
-				expect(this.factory._isFunction(window.alert)).toBeTrue();
+				expect(this.factory._isFunction(window.alert)).toBe(true);
 			});
 			it("returns false for null", function() {
-				expect(this.factory._isFunction(null)).toBeFalse();
+				expect(this.factory._isFunction(null)).toBe(false);
 			});
 			it("returns false for booleans", function() {
-				expect(this.factory._isFunction(true)).toBeFalse();
-				expect(this.factory._isFunction(false)).toBeFalse();
+				expect(this.factory._isFunction(true)).toBe(false);
+				expect(this.factory._isFunction(false)).toBe(false);
 			});
 			it("returns false for strings", function() {
-				expect(this.factory._isFunction("testing")).toBeFalse();
+				expect(this.factory._isFunction("testing")).toBe(false);
 			});
 		});
 		describe("_isObject", function() {
 			describe("returns true for", function() {
 				it("Objects", function() {
-					expect(this.factory._isObject({})).toBeTrue();
+					expect(this.factory._isObject({})).toBe(true);
 				});
 				it("Arrays", function() {
-					expect(this.factory._isObject([])).toBeTrue();
+					expect(this.factory._isObject([])).toBe(true);
 				});
 				it("Functions", function() {
-					expect(this.factory._isObject(function() {})).toBeTrue();
+					expect(this.factory._isObject(function() {})).toBe(true);
 				});
 				it("String objects", function() {
-					expect(this.factory._isObject(new String())).toBeTrue();
+					expect(this.factory._isObject(new String())).toBe(true);
 				});
 				it("Number objects", function() {
-					expect(this.factory._isObject(new Number(32))).toBeTrue();
+					expect(this.factory._isObject(new Number(32))).toBe(true);
 				});
 			});
 			describe("returns false for", function() {
 				it("null", function() {
-					expect(this.factory._isObject(null)).toBeFalse();
+					expect(this.factory._isObject(null)).toBe(false);
 				});
 				it("booleans", function() {
-					expect(this.factory._isObject(null)).toBeFalse();
+					expect(this.factory._isObject(null)).toBe(false);
 				});
 				it("string literals", function() {
-					expect(this.factory._isObject("testing")).toBeFalse();
+					expect(this.factory._isObject("testing")).toBe(false);
 				});
 				it("number literals", function() {
-					expect(this.factory._isObject(32)).toBeFalse();
+					expect(this.factory._isObject(32)).toBe(false);
 				});
 			});
 		});
@@ -97,7 +97,7 @@ describe("Hypodermic", function() {
 		describe("when returning a class reference", function() {
 			it("requires the class name start with a capital letter", function() {
 				var Klass = this.factory._getClassReference("XMLHttpRequest");
-				expect(Klass).toStrictlyEqual(XMLHttpRequest);
+				expect(Klass).toBe(XMLHttpRequest);
 			});
 			it("requires that no special characters be present in the class name", function() {
 				window.$TestInvalidGetClassReference = function() {};
@@ -105,10 +105,10 @@ describe("Hypodermic", function() {
 				var Klass;
 
 				Klass = this.factory._getClassReference("$TestInvalidGetClassReference");
-				expect(Klass).toBeNull();
+				expect(Klass).toBe(null);
 
 				Klass = this.factory._getClassReference("_TestInvalidGetClassReference");
-				expect(Klass).toBeNull();
+				expect(Klass).toBe(null);
 
 				delete window.$TestInvalidGetClassReference;
 				delete window._TestInvalidGetClassReference;
@@ -118,10 +118,10 @@ describe("Hypodermic", function() {
 				window.TestSpecialChars$GetClassReference = function() {};
 
 				var Klass = this.factory._getClassReference("TestSpecialChars_GetClassReference");
-				expect(Klass).toStrictlyEqual(TestSpecialChars_GetClassReference);
+				expect(Klass).toBe(TestSpecialChars_GetClassReference);
 
 				var Klass = this.factory._getClassReference("TestSpecialChars$GetClassReference");
-				expect(Klass).toStrictlyEqual(TestSpecialChars$GetClassReference);
+				expect(Klass).toBe(TestSpecialChars$GetClassReference);
 
 				delete window.TestSpecialChars_GetClassReference;
 				delete window.TestSpecialChars$GetClassReference;
@@ -136,7 +136,7 @@ describe("Hypodermic", function() {
 				};
 
 				var Klass = this.factory._getClassReference("TestGetClassReference.A.Test.Foo");
-				expect(Klass).toStrictlyEqual(TestGetClassReference.A.Test.Foo);
+				expect(Klass).toBe(TestGetClassReference.A.Test.Foo);
 
 				delete window.TestGetClassReference;
 			});
@@ -146,7 +146,7 @@ describe("Hypodermic", function() {
 				window.testGetClassReference = function() {};
 				var Klass = this.factory._getClassReference("testGetClassReference");
 
-				expect(Klass).toBeNull();
+				expect(Klass).toBe(null);
 				delete window.testGetClassReference;
 			});
 			it("class names cannot be executable JavaScript", function() {
@@ -154,15 +154,15 @@ describe("Hypodermic", function() {
 				var Klass = this.factory._getClassReference("alert('Hacked!');");
 
 				expect(window.alert).wasNotCalled();
-				expect(Klass).toBeNull();
+				expect(Klass).toBe(null);
 
 				Klass = this.factory._getClassReference("\a\Aalert\(\'Hacked\!\'\);");
 				expect(window.alert).wasNotCalled();
-				expect(Klass).toBeNull();
+				expect(Klass).toBe(null);
 
 				Klass = this.factory._getClassReference("\\aA\\alert\\(\\'Hacked\\!\\'\\)\\;");
 				expect(window.alert).wasNotCalled();
-				expect(Klass).toBeNull();
+				expect(Klass).toBe(null);
 			});
 			it("did not exist in the global object", function() {
 				if (window.TestGetClassReference) {
@@ -171,12 +171,12 @@ describe("Hypodermic", function() {
 
 				var Klass = this.factory._getClassReference("TestGetClassReference");
 
-				expect(Klass).toBeNull();
+				expect(Klass).toBe(null);
 			});
 			it("it throws an error when attempting to get the class reference", function() {
 				var Klass = this.factory._getClassReference("I.Do.Not.Exist");
 
-				expect(Klass).toBeNull();
+				expect(Klass).toBe(null);
 			});
 		});
 	});
@@ -195,7 +195,7 @@ describe("Hypodermic", function() {
 			var value = this.factory._getDependencyValue(propertyConfig);
 
 			expect(this.factory.getInstance).wasCalledWith(propertyConfig.id);
-			expect(value).toStrictlyEqual(dependency);
+			expect(value).toBe(dependency);
 		});
 		it("returns a value from the property config if the value is not 'undefined'", function() {
 			spyOn(this.factory, "getInstance");
@@ -207,7 +207,7 @@ describe("Hypodermic", function() {
 				value: null
 			};
 			value = this.factory._getDependencyValue(propertyConfig);
-			expect(value).toBeNull();
+			expect(value).toBe(null);
 
 			propertyConfig = {
 				value: "testing"
@@ -219,13 +219,13 @@ describe("Hypodermic", function() {
 				value: false
 			};
 			value = this.factory._getDependencyValue(propertyConfig);
-			expect(value).toBeFalse();
+			expect(value).toBe(false);
 
 			propertyConfig = {
 				value: {foo: "bar"}
 			};
 			value = this.factory._getDependencyValue(propertyConfig);
-			expect(value).toStrictlyEqual(propertyConfig.value);
+			expect(value).toBe(propertyConfig.value);
 			expect(value.foo).toEqual(propertyConfig.value.foo);
 		});
 		it("throws an error if there is no 'id' and no 'value' in the property config", function() {
@@ -273,7 +273,7 @@ describe("Hypodermic", function() {
 			expect(this.factory.getInstance).wasCalledWith(config[1].id);
 			expect(args.length).toEqual(2);
 			expect(args[0]).toEqual(123);
-			expect(args[1]).toStrictlyEqual(test);
+			expect(args[1]).toBe(test);
 		});
 		it("throws an error if one of the arguments does not have an \"id\" or \"value\"", function() {
 			var config = [{ value: 123 }, {}];
@@ -408,7 +408,7 @@ describe("Hypodermic", function() {
 			expect(instance).toBeInstanceof(TestCreateInstanceFromConfig.With.ConstructorArgs);
 			expect(instance.x).toEqual(config.constructorArgs[0].value);
 			expect(instance.y).toEqual(config.constructorArgs[1].value);
-			expect(instance.options).toStrictlyEqual(defaultOptions);
+			expect(instance.options).toBe(defaultOptions);
 
 			window.TestCreateInstanceFromConfig = null;
 			delete window.TestCreateInstanceFromConfig;
@@ -599,7 +599,7 @@ describe("Hypodermic", function() {
 			var instance = this.factory._getSingletonInstance(id, config);
 
 			expect(this.factory._createInstanceFromConfig).wasCalledWith(config);
-			expect(this.factory._singletons[id]).toStrictlyEqual(test);
+			expect(this.factory._singletons[id]).toBe(test);
 		});
 		it("only allows one instance of that class", function() {
 			var test = {};
@@ -618,11 +618,11 @@ describe("Hypodermic", function() {
 			var instance = this.factory._getSingletonInstance(id, config);
 
 			expect(this.factory._createInstanceFromConfig).wasCalledWith(config);
-			expect(this.factory._singletons[id]).toStrictlyEqual(test);
-			expect(instance).toStrictlyEqual(test);
+			expect(this.factory._singletons[id]).toBe(test);
+			expect(instance).toBe(test);
 
 			instance = this.factory._getSingletonInstance(id, config);
-			expect(instance).toStrictlyEqual(this.factory._singletons[id]);
+			expect(instance).toBe(this.factory._singletons[id]);
 		});
 	});
 	describe("getInstance", function() {
