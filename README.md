@@ -1,6 +1,6 @@
 # Hypodermic
 
-Hypodermic is a painless dependency injection library for JavaScript. Really.
+Hypodermic is painless dependency injection for JavaScript. Really.
 
 # Usage
 
@@ -97,23 +97,23 @@ Break your application down into individual components.
         title: "",
         transport: null,
         url: null,
-  
+
         init: function(element) {
             this.element = element;
             this.transport.open(this.url, this.method, true);
             this.getLatestNews();
         },
-  
+
         getLatestNews: function() {
             if (this.retries < this.config["polling.retries"]) {
                 this.transport.onreadystatechange = function() {
                     if (this.transport.readyState !== 4 || this.transport.status !== 200) {
                         return;
                     }
-        
+
                     setTimeout(this.getLatestNews.bind(this), this.config["polling.interval"]);
                 }.bind(this);
-      
+
               this.transport.send(null);
             }
         }
@@ -126,7 +126,7 @@ Put this in your HTML file:
     <script type="text/javascript">
         var objectFactory = new Hypodermic(applicationConfig);
         var app = objectFactory.getInstance("main");
-  
+
         window.onload = function() {
             app.init(document.body);
         };
