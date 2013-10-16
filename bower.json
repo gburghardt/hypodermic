@@ -1,0 +1,14 @@
+{
+	"name": "hypodermic",
+	"version": "1.0.0",
+	"homepage": "https://github.com/gburghardt/hypodermic",
+	"authors": [
+		"Greg Burghardt <greg_burghardt@yahoo.com>"
+	],
+	"description": "Hypodermic is painless dependency injection for JavaScript. Really.",
+	"license": "MIT",
+	"repository": { "type": "git", "url": "https://github.com/gburghardt/hypodermic.git" },
+	"main": [
+		"src/hypodermic.js"
+	]
+}
