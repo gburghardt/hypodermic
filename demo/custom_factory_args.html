@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Hypodermic Demo: Custom Object Factory With Arguments</title>
+</head>
+<body>
+	<p>Enter the commands below into your browser console:</p>
+<pre>
+container.resolve("point2d");
+container.resolve("point3d");
+</pre>
+	<!-- Hypodermic Class Libs -->
+	<script type="text/javascript" src="../src/Hypodermic.js"></script>
+	<script type="text/javascript" src="../src/Hypodermic/Container.js"></script>
+	<script type="text/javascript" src="../src/Hypodermic/DependencyResolver.js"></script>
+	<script type="text/javascript" src="../src/Hypodermic/ObjectFactory.js"></script>
+
+	<script type="text/javascript">
+		function PointFactory() {}
+
+		PointFactory.prototype.createInstance = function(type, x, y, z, logger) {
+			logger.info("PointFactory#createInstance - Create new point: ", type, x, y, z);
+
+			switch (type) {
+				case "2d":
+					return new Point(x, y);
+				case "3d":
+					return new Point3d(x, y, z);
+				default:
+					throw new Error("Invalid type: " + type);
+			}
+		};
+
+		function Point(x, y) {
+			if (typeof x === "number")
+				this.x = x;
+
+			if (typeof y === "number")
+				this.y = y;
+		}
+
+		Point.prototype.x = 0;
+		Point.prototype.y = 0;
+
+		function Point3d(x, y, z) {
+			Point.call(this, x, y);
+
+			if (typeof z === "number")
+				this.z = z;
+		}
+
+		Point3d.prototype = Object.create(Point.prototype);
+		Point3d.prototype.constructor = Point3d;
+		Point3d.prototype.z = 0;
+	</script>
+
+	<!-- Kick things off: -->
+	<script type="text/javascript">
+		var container = new Hypodermic.Container({
+			point2d: {
+				factory: {
+					id: "pointFactory",
+					args: [
+						{ value: "2d" },
+						{ value: 10 },
+						{ value: -5 },
+						{ value: null },
+						"logger"
+					]
+				}
+			},
+			point3d: {
+				factory: {
+					id: "pointFactory",
+					args: [
+						{ value: "3d" },
+						{ value: 10 },
+						{ value: -5 },
+						{ value: 84 },
+						"logger"
+					]
+				}
+			},
+			pointFactory: {
+				type: "PointFactory",
+				singleton: true
+			},
+			logger: {
+				type: "window.console",
+				singleton: true
+			}
+		});
+	</script>
+</body>
+</html>

@@ -5,36 +5,61 @@
 	<title>Hypodermic. A painless dependency injection library for JavaScript. Really.</title>
 </head>
 <body>
-	<div class="news-ticker-headlines">
-		...
-	</div>
-	<div class="news-ticker-national">
-		...
-	</div>
-	<script type="text/javascript" src="../src/hypodermic.js"></script>
-	<script type="text/javascript" src="./application.js"></script>
-	<script type="text/javascript" src="./controllers/news/news_ticker_controller.js"></script>
-	<script type="text/javascript" src="./config/application_config.js"></script>
+	<h2>Add a Task</h2>
+	<form method="get" action="#" id="tasks">
+		<input type="text" name="task">
+		<button type="submit">Add Task</button>
+	</form>
+
+	<h2>Recently Added Tasks</h2>
+	<ol id="recent-tasks"></ol>
+
+	<p>Run these commands in the browser console:</p>
+<pre>
+container
+container.resolve("eventDispatcher") === container.resolve("eventDispatcher")
+tasks
+recentTasks
+tasks.dispatcher === recentTasks.dispatcher
+</pre>
+
+	<!-- Hypodermic Class Libs -->
+	<script type="text/javascript" src="../src/Hypodermic.js"></script>
+	<script type="text/javascript" src="../src/Hypodermic/Container.js"></script>
+	<script type="text/javascript" src="../src/Hypodermic/DependencyResolver.js"></script>
+	<script type="text/javascript" src="../src/Hypodermic/ObjectFactory.js"></script>
+
+	<!-- Your Application Files -->
+	<script type="text/javascript" src="./js/Dispatcher.js"></script>
+	<script type="text/javascript" src="./js/TasksController.js"></script>
+	<script type="text/javascript" src="./js/RecentTasksController.js"></script>
+
+	<!-- Kick things off: -->
 	<script type="text/javascript">
-		// 1) Insantiate the object factory
-		var objectFactory = new Hypodermic(applicationConfig);
+		var container = new Hypodermic.Container({
+			tasks: {
+				type: "TasksController",
+				properties: {
+					dispatcher: "eventDispatcher"
+				}
+			},
+			recentTasks: {
+				type: "RecentTasksController",
+				properties: {
+					dispatcher: "eventDispatcher"
+				}
+			},
+			eventDispatcher: {
+				type: "Dispatcher",
+				singleton: true
+			}
+		});
 
-		// 2) Get the application object from the factory
-		var app;
+		var tasks = container.resolve("tasks");
+		tasks.init(document.getElementById("tasks"));
 
-		try {
-			app = objectFactory.getInstance("main");
-		}
-		catch (error) {
-			console.error(error);
-			app = null;
-		}
-
-		window.onload = function() {
-			// 3) Kick things off
-			if (app)
-				app.init(document);
-		};
+		var recentTasks = container.resolve("recentTasks");
+		recentTasks.init(document.getElementById("recent-tasks"));
 	</script>
 </body>
 </html>
