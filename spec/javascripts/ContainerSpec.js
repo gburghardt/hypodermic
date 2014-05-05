@@ -25,15 +25,15 @@ describe("Hypodermic.Container", function() {
 			expect(container.resolve("nonExistent")).toBe(null);
 		});
 
-		it("throws an error if trying to resolve an abstract config", function() {
+		it("throws an error if trying to resolve a template config", function() {
 			configs.test = {
 				type: "Array",
-				abstract: true
+				template: true
 			};
 
 			expect(function() {
 				container.resolve("test");
-			}).toThrowError("Cannot create resolve abstract config: test");
+			}).toThrowError("Cannot create resolve template config: test");
 		});
 
 		it("returns itself when resolving 'container'", function() {
@@ -133,9 +133,9 @@ describe("Hypodermic.Container", function() {
 					.toHaveBeenCalledWith(100);
 			});
 
-			it("parent configs", function() {
+			it("template configs", function() {
 				configs.baseTest = {
-					abstract: true,
+					template: true,
 					properties: {
 						foo: { value: 100 }
 					}

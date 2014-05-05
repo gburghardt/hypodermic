@@ -667,7 +667,7 @@ configuration a little:
 
     var container = new Hypodermic.Container({
         configurable: {
-            abstract: true,
+            template: true,
             properties: {
                 config: "globalConfig"
             }
@@ -692,7 +692,7 @@ configuration a little:
         }
     });
 
-We've moved the global config object into an __abstract configuration__ called
+We've moved the global config object into a __template configuration__ called
 "configurable". The parent configuration for both "foo" and "bar" is
 "configurable", so they both receive the same config property without having to
 specify it twice.

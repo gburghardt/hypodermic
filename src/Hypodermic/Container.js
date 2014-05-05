@@ -44,8 +44,8 @@ function Container(_configs) {
 				throw new Error("No configuration found for " + name);
 			}
 		}
-		else if (config.abstract) {
-			throw new Error("Cannot create resolve abstract config: " + name);
+		else if (config.template) {
+			throw new Error("Cannot create resolve template config: " + name);
 		}
 		else {
 			if (config.factory) {
