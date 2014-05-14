@@ -20,11 +20,12 @@ for (var i = 0, key, length = globals.length; i < length; i++) {
 		}
 		catch (error) {
 			var message = "Cannot seed global singletons with " + key + ". Failed with error: " + error.message;
+
 			if (global.console && global.console.warn) {
 				global.console.warn(message);
 			}
 			else {
-				setTimeout(function) {
+				setTimeout(function() {
 					throw message;
 				}, 500);
 			}
